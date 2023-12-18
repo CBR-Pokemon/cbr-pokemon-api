@@ -28,8 +28,17 @@ def find_similar():
             # Find k nearest neighbors for the given dictionary
             nearest_neighbors = inference.find_k_nearest_neighbors(normalized_dict, 1)
 
-            # Remove the found nearest neighbor from the dataset temporarily
-            inference.dataset = inference.dataset.drop(nearest_neighbors.index)
+            for key in data:
+                if key in nearest_neighbors:
+                    nearest_neighbors[key] = data[key]
+
+            nearest_neighbors['Number'] = len(inference.dataset) + 1
+
+            # Concatenate the dataframes and reassign to inference.dataset
+            inference.dataset = pd.concat([inference.dataset, nearest_neighbors], ignore_index=True)
+
+            # Save the updated dataset to the CSV file
+            inference.dataset.to_csv('data/datasets/pokemon_alopez247.csv', index=False)
 
             return jsonify(nearest_neighbors.to_dict())  # Respond with name and attributes as JSON
 
